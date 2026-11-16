@@ -1,6 +1,11 @@
 /**
- * Demo data only. All plants, areas and technicians are fictional.
+ * Demo data only. The company, plant, areas and technicians are fictional.
  */
+
+export const COMPANY = {
+  name: 'Arandu Foods',
+  plant: 'Plant 1',
+};
 
 export type Discipline = 'Electrical' | 'Mechanical' | 'Civil';
 export type Pictogram =

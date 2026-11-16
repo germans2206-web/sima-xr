@@ -29,6 +29,7 @@ import {
 } from './art.js';
 import {
   CELL_CAPACITY,
+  COMPANY,
   type Finding,
   TECHNICIANS,
   todaysFindings,
@@ -720,7 +721,7 @@ export class PlannerSystem extends createSystem({
     const fs = this.findings.filter((f) => f.foodSafety).length;
     this.say(
       'Good morning!',
-      `Yesterday’s inspection route raised ${n} findings, ${fs} of them ${fs === 1 ? 'a food-safety risk' : 'food-safety risks'}. Let’s give each one a technician and a day. Pinch a card in front of you to pick it up.`,
+      `Yesterday’s inspection route at ${COMPANY.name} ${COMPANY.plant} raised ${n} findings, ${fs} of them ${fs === 1 ? 'a food-safety risk' : 'food-safety risks'}. Let’s give each one a technician and a day. Pinch a card in front of you to pick it up.`,
       'Hands only. Everything works seated.',
     );
   }

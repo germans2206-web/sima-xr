@@ -7,6 +7,7 @@ import {
 } from '@iwsdk/core';
 import {
   CELL_CAPACITY,
+  COMPANY,
   DAYS,
   DISCIPLINE_COLOR,
   // DAYS is used for the column count; labels come from the planner.
@@ -502,7 +503,7 @@ export function drawStats(
   ctx.fillStyle = MUTED;
   ctx.font = `700 15px ${FONT}`;
   ctx.textBaseline = 'alphabetic';
-  ctx.fillText('SIMA XR · MORNING PLAN', 20, 34);
+  ctx.fillText(`${COMPANY.name.toUpperCase()} · ${COMPANY.plant.toUpperCase()} (DEMO)`, 20, 34);
   ctx.fillStyle = INK;
   ctx.font = `800 30px ${FONT}`;
   ctx.fillText(s.done ? 'Plan ready ✓' : 'Plan your week', 20, 72);
