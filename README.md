@@ -21,7 +21,9 @@ Built for the Meta VR Start Developer Competition 2026 (Productivity track).
 - **Voice:** "plan all", "suggest", "accept", "what's urgent?" (where the browser supports the Web Speech API).
 - **Daily loop:** a new set of findings each day, a planning streak and a "Plan ready" summary.
 
-All plants, areas and technicians in this repository are fictional demo data.
+The demo runs at **Arandu Foods, Plant 1**, a fictional company. All plants,
+areas and technicians in this repository are fictional demo data. Any
+resemblance to real companies or people is coincidental.
 
 ## Try it
 
