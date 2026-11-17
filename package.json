@@ -1,0 +1,21 @@
+{
+  "name": "sima-ra",
+  "version": "1.0.0",
+  "description": "SIMA RA · Ruta de inspección con realidad aumentada, mantenimiento y calidad",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler pages dev",
+    "deploy": "wrangler pages deploy --project-name sima-ra",
+    "db:crear": "wrangler d1 create sima-ra-db",
+    "db:migrar": "wrangler d1 execute sima-ra-db --remote --file=./schema.sql",
+    "db:migrar:local": "wrangler d1 execute sima-ra-db --local --file=./schema.sql",
+    "db:semilla": "wrangler d1 execute sima-ra-db --remote --file=./semilla.sql",
+    "db:migrar-plantas": "wrangler d1 execute sima-ra-db --remote --file=./migracion-plantas.sql",
+    "r2:crear": "wrangler r2 bucket create sima-ra-fotos",
+    "db:consulta": "wrangler d1 execute sima-ra-db --remote --command",
+    "usuario:crear": "node scripts/crear-usuario.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

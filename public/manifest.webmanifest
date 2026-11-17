@@ -1,0 +1,16 @@
+{
+  "name": "SIMA RA · Inspección con realidad aumentada",
+  "short_name": "SIMA RA",
+  "description": "Ruta de inspección con realidad aumentada: cada no conformidad marcada en su lugar y con su ubicación",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0A0D10",
+  "theme_color": "#0A0D10",
+  "lang": "es",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

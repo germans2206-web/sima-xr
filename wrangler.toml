@@ -1,0 +1,29 @@
+# =====================================================================
+# SIMA RA · Configuración de Cloudflare (proyecto separado de SIMA)
+# Reemplazá database_id por el que devuelve:  wrangler d1 create sima-ra-db
+# =====================================================================
+name = "sima-ra"
+compatibility_date = "2026-09-01"
+pages_build_output_dir = "public"
+
+# --- Base de datos (D1) ---
+[[d1_databases]]
+binding = "DB"
+database_name = "sima-ra-db"
+database_id = "22254237-e20b-48cb-af0c-74cbade9cd70"
+
+# --- Almacenamiento de fotos (R2) ---
+[[r2_buckets]]
+binding = "FOTOS"
+bucket_name = "sima-ra-fotos"
+
+# --- Variables ---
+# SESSION_SECRET NO va acá: es secreta. En desarrollo local va en .dev.vars
+# (copiá .dev.vars.ejemplo). En producción se carga con:
+#   npx wrangler secret put SESSION_SECRET
+
+# --- Asistente de IA (Workers AI · Llama 4 + Whisper) ---
+# Activa el asistente al cargar hallazgos. Para apagarlo sin tocar el
+# código: variable IA_DESACTIVADA = 1 en Settings → Variables.
+[ai]
+binding = "AI"

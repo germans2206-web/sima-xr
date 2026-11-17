@@ -1,0 +1,187 @@
+/* ==========================================================================
+   SIMA · Rediseño 2026 («calma operativa»)
+   --------------------------------------------------------------------------
+   Capa visual que se carga DESPUÉS de los estilos de index.html y de los que
+   inyectan los módulos (SIMI, compañero, escenas, tour). Por eso varias
+   reglas llevan !important: pisan estilos base y estilos inyectados en
+   tiempo de ejecución sin tener que tocar cada componente.
+
+   Paleta: la de siempre (azul noche + naranja + colores de estado).
+   Los tokens de color, radios y tipografía viven en :root de index.html.
+
+   Principios
+   1. Tarjetas tonales sin borde: separa el contraste, no las líneas.
+   2. Un solo naranja por pantalla: la acción principal.
+   3. Radios en tres niveles: modal 28 · tarjeta 22 · campo 14; botones y
+      chips en píldora.
+   4. Etiquetas en minúscula, sin monoespaciada ni interletra abierta.
+   5. Barra superior y menú lateral fundidos con el fondo.
+
+   Índice
+   1. Base y tipografía          6. Campos y filtros
+   2. Shell: barra y riel         7. Inicio
+   3. Superficies (tarjetas)      8. Carga de hallazgo y modales
+   4. Botones                     9. Calendario, tablas y baldosas
+   5. Chips, estados, etiquetas  10. SIMI (chat, sección, onboarding)
+                                 11. Responsive: tablet y celular
+   ========================================================================== */
+
+/* 1. Base y tipografía ---------------------------------------------------- */
+:root{
+  --sh-card:0 1px 0 rgba(255,255,255,.03) inset,0 14px 34px -22px rgba(0,0,0,.75);
+  --pill:999px;
+}
+html[data-theme="light"]{
+  --sh-card:0 1px 2px rgba(16,24,32,.04),0 14px 34px -24px rgba(16,24,32,.22);
+}
+body{letter-spacing:-.003em}
+h1,h2,h3{letter-spacing:-.025em}
+.num,.mono{font-variant-numeric:tabular-nums}
+::selection{background:rgba(255,159,28,.24)}
+
+/* Etiquetas: de «MAYÚSCULA MONO ESPACIADA» a minúscula legible */
+.eyebrow,.hn-tag,.hr-estado,.ht-tit,.esc-cat,.ia-head,.sec-title,.ct-sub,.ubic-grp,.cap-mini,
+.ff-l,label.lbl,.ag-k,.period-top .p-ttl,.range .rf label,.tool-lbl,.pp .pp-l,table.tbl th,
+.cal-head div,.dg-pill,.glass-tag,.lev-idtag,.lev-loc,.si-area,.ue-txt small,.ubic-atajo small,
+.ia-chip small,.ia-desc small,.auto-badge,.ccp-l,.cc-photos .ccp-l,.tag-rol,.status,.sev-flag,
+.mode-card .m-tag,.u-role,.user-dropdown .ud-role,.sec-badge,.cal-ok,.cal-rech,.tent-chip,
+.simi-rep h5,.simi-g-tag,.simi-tip-tit,.sp-urg,.onb-ej b,.tour-cont,.cam-chip,.login-ver,.lg-marca small,
+.brand-txt span,table.tbl td::before{
+  text-transform:none!important;letter-spacing:0!important;font-family:var(--sans)!important;
+}
+.eyebrow,.hn-tag,.hr-estado,.ht-tit,.esc-cat,.ff-l,label.lbl,.period-top .p-ttl,.range .rf label,
+.simi-rep h5,.ag-k,table.tbl th,table.tbl td::before{
+  font-size:12.5px!important;font-weight:500!important;color:var(--tx3)!important;
+}
+.eyebrow{font-size:13px!important;display:block!important}
+.eyebrow::before{display:none!important}
+.eyebrow::first-letter{text-transform:uppercase}
+.home-head .eyebrow{text-transform:none!important}
+.esc-cat{color:var(--tx3)!important}
+.simi-tip-tit,.sp-urg{font-size:12px!important}
+.status{font-weight:600!important;font-size:12px!important}
+
+/* 2. Shell: barra superior y riel ---------------------------------------- */
+.topbar{
+  background:var(--bg)!important;backdrop-filter:none!important;border-bottom:0!important;
+  height:66px!important;padding:0 22px!important;
+}
+.topbar::after{display:none!important}
+.brand-mark{background:var(--amber)!important;box-shadow:none!important;border-radius:12px!important}
+.brand-txt h1{letter-spacing:.02em!important;font-weight:700!important;color:var(--tx)!important}
+.notif-bell,.planta-btn,.avatar,.rail-toggle{border:0!important;background:var(--s1)!important;border-radius:var(--pill)!important}
+.planta-btn{padding:0 16px!important}
+.notif-panel,.user-dropdown{border:0!important;border-radius:20px!important;box-shadow:var(--sh-3)!important}
+.rail{border-right:0!important;background:var(--bg)!important}
+.rail-item{border-radius:14px!important}
+.rail-item.active{background:var(--s2)!important;color:var(--amber)!important}
+.rail-item.active::before,.rail-item.active::after{display:none!important}
+
+/* 3. Superficies --------------------------------------------------------- */
+.home-turno,.home-ruta,.home-next,.hsc,.simi-sec,.cal-main,.cal-box,.sin-item,.fbar,.lev,.lev-wrap,
+.chart-card,.kpi,.tile,.tbl-wrap,.cap-sec,.sec-block,.cfg-card,.route-hero,.mode-card,.ag-item,
+.el-res,.area-step,.pkg,.cal-step,.ubic-list{
+  border:0!important;background:var(--s1)!important;border-radius:var(--r-l)!important;box-shadow:var(--sh-card)!important;
+}
+.home-turno::before,.home-turno::after,.home-ruta::before,.home-ruta::after{display:none!important}
+.home-turno.alerta{background:var(--s1)!important}
+.lev-foot,.lev-meta{border-top:0!important}
+.lev-photo,.ph-none{border-radius:16px!important}
+.lev .lev-photo,.lev .ph-none{margin:6px 6px 0!important;width:calc(100% - 12px)!important}
+html[data-theme="light"] .home-ruta{background:radial-gradient(120% 140% at 0% 0%,rgba(255,159,28,.10),transparent 55%),var(--s1)!important}
+
+/* 4. Botones ------------------------------------------------------------- */
+.btn{border-radius:var(--pill)!important;font-weight:600!important;letter-spacing:-.005em!important}
+.btn-primary{
+  background:var(--amber)!important;background-image:none!important;color:#1A1206!important;
+  border:0!important;box-shadow:none!important;
+}
+.btn-primary:hover{filter:brightness(1.06)}
+.btn-primary:disabled,.btn-primary[disabled]{filter:saturate(.5);opacity:.55}
+.btn-ghost,.btn-quiet,.cmp-x,.print-btn,.mic-btn,.dict-x,.tool-btn{border:0!important;background:var(--s2)!important}
+.btn-ghost:hover,.btn-quiet:hover{background:var(--s3)!important}
+.icon-btn{border-radius:12px!important}
+
+/* 5. Chips, estados, etiquetas ------------------------------------------- */
+.chip,.cmp-it,.sec-badge,.aged,.sap-tag,.tent-chip,.disc-tag,.glass-tag,.sub-chip,.tec-chip,
+.ubic-atajo,.opt,.sev-opt,.disc-opt,.zoc,.tag-rol,.dg-pill,.sub-tag,.hsc .badge{
+  border:0!important;border-radius:var(--pill)!important;
+}
+.chip,.cmp-it{background:var(--s2)!important}
+.chip.active{background:var(--tx)!important;color:var(--bg)!important}
+.ca-pill{border:0!important;border-radius:18px!important}
+.status{border-radius:var(--pill)!important}
+.tabs,.seg,.period{border:0!important;background:var(--s1)!important;border-radius:var(--pill)!important;padding:4px!important}
+.tabs button,.tabs .active,.seg button{border-radius:var(--pill)!important}
+.badge,.notif-badge{box-shadow:none!important;border:0!important}
+
+/* 6. Campos y filtros ---------------------------------------------------- */
+.inp,input[type=text],input[type=search],input[type=date],input[type=email],input[type=password],
+input[type=number],input[type=time],select,textarea,.dict,.date-field .cal-btn,.login-card input{
+  border:1px solid transparent!important;background-color:var(--s2)!important;border-radius:14px!important;
+}
+.inp:focus,input:focus,select:focus,textarea:focus{
+  border-color:rgba(255,159,28,.6)!important;box-shadow:0 0 0 4px rgba(255,159,28,.12)!important;outline:none;
+}
+.fbar-tg.on{box-shadow:inset 0 0 0 1.5px rgba(255,159,28,.55)!important}
+
+/* 7. Inicio -------------------------------------------------------------- */
+.home-ruta{background:radial-gradient(120% 140% at 0% 0%,rgba(255,159,28,.10),transparent 55%),var(--s1)!important}
+.hr-cta{height:52px!important;padding:0 26px!important}
+.esc-globo{border:0!important;background:var(--s2)!important;box-shadow:none!important;border-radius:20px!important}
+.esc-globo::before,.esc-globo::after{display:none!important}
+.esc-esc{border-radius:18px!important}
+.hsc{padding:22px!important;transition:transform .18s var(--ease),background .18s}
+.hsc:hover{transform:translateY(-2px);background:var(--s2)!important}
+.hsc-ico,.hn-ico{border:0!important;box-shadow:none!important;border-radius:14px!important}
+
+/* 8. Carga de hallazgo y modales ----------------------------------------- */
+.modal{border:0!important;border-radius:28px!important;background:var(--bg)!important;box-shadow:var(--sh-3)!important}
+.cap-n{border:0!important;background:var(--s3)!important}
+.cap-tipos .ct-tile,.ct-tile{border:0!important;background:var(--s2)!important;border-radius:16px!important}
+.ct-tile.on,.ct-tile.sel,.ct-tile[aria-pressed="true"]{background:rgba(255,159,28,.12)!important;box-shadow:inset 0 0 0 1.5px var(--amber)!important}
+.cam,.draw-wrap,.draw-tools{border:0!important;border-radius:20px!important}
+.ubic-elegida{border:0!important;border-radius:16px!important}
+button[onclick="startCam()"]{background:var(--amber)!important;color:#1A1206!important}
+.toast{border:0!important;border-radius:16px!important}
+.pp{border:0!important;border-radius:18px!important}
+
+/* 9. Calendario, tablas y baldosas --------------------------------------- */
+.cal-main{overflow:hidden}
+.cal-cell.hoy.sel,.cal-cell.hoy{box-shadow:inset 0 0 0 1.5px rgba(255,159,28,.7)!important}
+.cal-ev{border-radius:8px!important}
+.tbl-wrap{overflow:hidden}
+table.tbl th{background:transparent!important}
+
+/* 10. SIMI --------------------------------------------------------------- */
+#simiFab small,.simi-fab small{display:none!important}
+.simi-sec{background:var(--s1)!important}
+
+/* Login */
+.login-card{border:0!important;border-radius:28px!important;background:var(--s1)!important;box-shadow:var(--sh-card)!important}
+
+/* 11. Responsive --------------------------------------------------------- */
+/* Tablet (761–1000 px): menos padding lateral, tarjetas a dos columnas */
+@media (min-width:761px) and (max-width:1000px){
+  .topbar{padding:0 16px!important}
+  .hsc{padding:18px!important}
+}
+/* Celular (≤ 760 px): radios algo menores y áreas táctiles grandes */
+@media (max-width:760px){
+  .topbar{height:60px!important;padding:0 14px!important}
+  .home-turno,.home-ruta,.home-next,.hsc,.simi-sec,.cal-main,.cal-box,.sin-item,.fbar,.lev,.lev-wrap,
+  .chart-card,.kpi,.tile,.tbl-wrap,.cap-sec,.sec-block,.cfg-card,.ag-item{border-radius:20px!important}
+  .modal{border-radius:24px 24px 0 0!important}
+  .btn{min-height:44px}
+  .btn.btn-sm{min-height:36px}
+  .hr-cta{height:54px!important;width:100%;justify-content:center}
+  .hsc:hover{transform:none}
+}
+@media (prefers-reduced-motion:reduce){.hsc{transition:none}.hsc:hover{transform:none}}
+
+/* Logo = botón de inicio (11-11-26) */
+a.brand{text-decoration:none;color:inherit;border-radius:14px;padding:4px 8px 4px 4px;margin-left:-4px;cursor:pointer;transition:background .15s}
+a.brand:hover{background:var(--s1)}
+a.brand:active .brand-mark{transform:scale(.94)}
+a.brand:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.brand-mark{transition:transform .12s}
