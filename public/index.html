@@ -2836,7 +2836,7 @@ const esVista=()=>role==='vista';
    crees tienen acceso a todas las demás vistas, pero no a esta.
    El backend valida lo mismo por su cuenta: cambiar esta línea desde
    el navegador no abre nada.                                        */
-const CORREO_DUENO='german.dominguez@minervafoods.com';
+const CORREO_DUENO='germans2206@gmail.com';
 const esDueno=()=>String(miCorreoActual||'').trim().toLowerCase()===CORREO_DUENO;
 // Los eliminados por el administrador no cuentan en ninguna vista (ver openEliminar).
 const L=()=>DB.levantamientos.filter(l=>!l.eliminado&&(l.planta||'planta2')===plantaActual);

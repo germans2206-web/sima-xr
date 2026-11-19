@@ -434,7 +434,7 @@ function normPlantas(arr) {
    (estructura, padrón de técnicos y alta/baja de usuarios). Tiene que
    coincidir, en minúsculas, con CORREO_DUENO de public/index.html.
    El frontend esconde la sección; esto es lo que de verdad la cierra. */
-const CORREO_DUENO = 'german.dominguez@minervafoods.com';
+const CORREO_DUENO = 'germans2206@gmail.com';
 const esDueno = u => String(u.email || '').trim().toLowerCase() === CORREO_DUENO;
 
 const esAdmin = u => u.rol === 'inspeccion' && esDueno(u);
