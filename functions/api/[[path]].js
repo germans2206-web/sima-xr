@@ -224,7 +224,8 @@ const mismoRechazo = (a, b) => calRechazo(a) && calRechazo(b) && a.fecha === b.f
 
 /* SIMA RA (17-11-26): marca de la no conformidad en realidad aumentada y su
    ubicación. Sólo números en rango y textos acotados. */
-const RA_METODOS = ['webxr', 'camara', 'gps'];
+const RA_METODOS = ['webxr', 'camara', 'gps', 'cloud'];
+const RE_ANCLA = /^[A-Za-z0-9_\-:.]{6,200}$/;
 function numEn(v, min, max) { const n = Number(v); return (typeof v === 'number' || (typeof v === 'string' && v.trim() !== '')) && Number.isFinite(n) && n >= min && n <= max ? n : null; }
 function limpiarRA(r) {
   if (!r || typeof r !== 'object' || Array.isArray(r) || !RA_METODOS.includes(r.metodo)) return null;
@@ -239,6 +240,9 @@ function limpiarRA(r) {
     const a = numEn(r.insp.lat, -90, 90), b = numEn(r.insp.lon, -180, 180);
     if (a != null && b != null) out.insp = { lat: a, lon: b };
   }
+  // App nativa (Unity + ARCore): ancla en la nube y hasta cuándo vale.
+  if (typeof r.anclaId === 'string' && RE_ANCLA.test(r.anclaId)) out.anclaId = r.anclaId;
+  if (RE_FECHA.test(String(r.anclaVence || ''))) out.anclaVence = String(r.anclaVence);
   if (r.px && typeof r.px === 'object') {
     const x = numEn(r.px.x, 0, 1), y = numEn(r.px.y, 0, 1);
     if (x != null && y != null) out.px = { x, y };
@@ -576,6 +580,14 @@ async function atender(context) {
       });
     }
 
+    /* --- SIMA RA · app nativa (Unity + ARCore Cloud Anchors) --- */
+    if (ruta === 'ra/anclas' && request.method === 'GET') return listarAnclas(env, url, u);
+    if (ruta === 'ra/renovar' && request.method === 'POST') {
+      if (u.rol !== 'inspeccion') return err('Sólo el Inspector renueva anclas.', 403);
+      let c; try { c = await request.json(); } catch (_) { return err('Cuerpo inválido.'); }
+      return renovarAncla(env, u, c);
+    }
+
     /* --- estado completo (o incremental con ?desde=) --- */
     if (ruta === 'estado' && request.method === 'GET') return traerEstado(env, url, u);
 
@@ -832,6 +844,58 @@ async function manejarUsuarios(context, u) {
 }
 
 /* ---------- Estado ---------------------------------------------------- */
+/* ---------- SIMA RA · anclas para la app nativa ----------------------
+   La app pide sólo lo que necesita para dibujar la tarjeta: estado, días,
+   lugar, el anclaId de ARCore y cuántas veces se repitió en ese lugar. */
+async function listarAnclas(env, url, u) {
+  const pls = (u.plantas || []).filter(p => PLANTAS_VALIDAS.includes(p));
+  const pl = url.searchParams.get('planta');
+  const plantas = pl && pls.includes(pl) ? [pl] : pls;
+  if (!plantas.length) return ok({ ncs: [] });
+  const { results } = await env.DB.prepare(
+    `SELECT id,planta,area,sector,subsector,cat,descripcion,estado,fecha_det,prog,val,tent,ra FROM levantamientos
+     WHERE COALESCE(planta,'planta2') IN (${plantas.map(() => '?').join(',')}) AND eliminado IS NULL ORDER BY fecha_det DESC`).bind(...plantas).all();
+  const todos = (results || []).map(r => ({ r, ra: J(r.ra, null) }));
+  const desde = new Date(Date.now() - 120 * 864e5).toISOString().slice(0, 10);
+  const metros = (a, b) => {
+    const R = 6371000, rad = x => x * Math.PI / 180, dLat = rad(b.lat - a.lat), dLon = rad(b.lon - a.lon);
+    const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLon / 2) ** 2;
+    return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
+  };
+  const mismo = (a, b) => (a.ra && b.ra && typeof a.ra.lat === 'number' && typeof b.ra.lat === 'number')
+    ? metros(a.ra, b.ra) <= 6
+    : !!(a.r.subsector && a.r.area === b.r.area && a.r.sector === b.r.sector && a.r.subsector === b.r.subsector);
+  const recientes = todos.filter(x => (x.r.fecha_det || '') >= desde);
+  const sector = url.searchParams.get('sector');
+  const ncs = todos.filter(x => x.ra && x.ra.anclaId && (!sector || x.r.sector === sector)).map(x => {
+    const prog = J(x.r.prog, null), val = J(x.r.val, null), tent = J(x.r.tent, null);
+    return {
+      id: x.r.id, planta: x.r.planta || 'planta2', area: x.r.area || '', sector: x.r.sector || '', subsector: x.r.subsector || '',
+      cat: x.r.cat || '', desc: corto(x.r.descripcion, 140), estado: x.r.estado || 'detectado', fechaDet: x.r.fecha_det || '',
+      fechaProg: (tent && tent.fecha) || (prog && prog.fecha) || '', fechaCierre: (val && val.fecha) || '',
+      anclaId: x.ra.anclaId, anclaVence: x.ra.anclaVence || '',
+      lat: typeof x.ra.lat === 'number' ? x.ra.lat : null, lon: typeof x.ra.lon === 'number' ? x.ra.lon : null,
+      rep: recientes.filter(y => y.r.id !== x.r.id && mismo(x, y)).length
+    };
+  });
+  return ok({ ncs, hoy: nowISO().slice(0, 10) });
+}
+/* Cuando la app vuelve a subir un ancla que estaba por vencer, se guarda el
+   nuevo anclaId sin tocar el resto del hallazgo. */
+async function renovarAncla(env, u, c) {
+  const id = String(c && c.id || '');
+  if (!RE_ID_LEV.test(id) || !RE_ANCLA.test(String(c.anclaId || '')) || !RE_FECHA.test(String(c.anclaVence || ''))) return err('Datos de ancla inválidos.');
+  const fila = await env.DB.prepare('SELECT planta, ra FROM levantamientos WHERE id=?').bind(id).first();
+  if (!fila) return err('No existe ese hallazgo.', 404);
+  if (!(u.plantas || []).includes(fila.planta || 'planta2')) return err('Sin acceso a esa planta.', 403);
+  const ra = J(fila.ra, {}) || {};
+  ra.anclaId = String(c.anclaId); ra.anclaVence = String(c.anclaVence);
+  if (!RA_METODOS.includes(ra.metodo)) ra.metodo = 'cloud';
+  await env.DB.prepare('UPDATE levantamientos SET ra=?, actualizado=? WHERE id=?').bind(JSON.stringify(ra), nowISO(), id).run();
+  await auditar(env, u, 'renovar-ancla', id);
+  return ok({ ok: true });
+}
+
 async function traerEstado(env, url, u) {
   const desde = url.searchParams.get('desde');
   // La marca de tiempo se toma ANTES de consultar: lo que se guarde mientras

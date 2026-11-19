@@ -1190,7 +1190,7 @@
   /* =====================================================================
      Integración con la carga de hallazgos y la ficha
      ===================================================================== */
-  const METODO = { webxr: 'Pin en RA', camara: 'Pin sobre la foto', gps: 'GPS del momento' };
+  const METODO = { webxr: 'Pin en RA', camara: 'Pin sobre la foto', gps: 'GPS del momento', cloud: 'Ancla en la nube (app SIMA RA)' };
   function texto(l) {
     const r = l && l.ra; if (!r) return '—';
     const partes = [METODO[r.metodo] || 'RA'];
@@ -1215,7 +1215,7 @@
     }
     return `<div class="ra-card"><span class="rc-ico">${ico(P.ra, 20)}</span>
       <div class="rc-t"><b>NC marcada · ${e(METODO[ra.metodo] || 'RA')}</b>${typeof ra.lat === 'number' ? `${fmtC(ra.lat)}, ${fmtC(ra.lon)}${ra.acc ? ' · ±' + Math.round(ra.acc) + ' m' : ''}${ra.dist ? ' · a ' + String(ra.dist).replace('.', ',') + ' m' : ''}` : 'Sin GPS en este lugar: queda con el sector elegido.'}</div>
-      ${conBoton ? `<button type="button" class="btn btn-sm btn-quiet" onclick="SIMA_RA.remarcar()">Volver a marcar</button>` : ''}</div>${rep}`;
+      ${conBoton && ra.metodo !== 'cloud' ? `<button type="button" class="btn btn-sm btn-quiet" onclick="SIMA_RA.remarcar()">Volver a marcar</button>` : ''}</div>${rep}`;
   }
   function remarcar() {
     const rec = (typeof capCtx !== 'undefined' && capCtx && capCtx.rec) || marcaRec;
@@ -1282,6 +1282,41 @@
       <a class="btn btn-sm btn-quiet" href="https://www.google.com/maps/dir/?api=1&destination=${fmtC(l.ra.lat)},${fmtC(l.ra.lon)}&travelmode=walking" target="_blank" rel="noopener">${ico(P.ext, 16)} Google Maps</a>
     </div>`;
   }
+
+  /* =====================================================================
+     Enlaces desde la app nativa (Unity + ARCore)
+     · ?nc=LV-123          abre la ficha de esa NC
+     · ?ancla=<id>&vence=AAAA-MM-DD&lat=..&lon=..&acc=..&dist=..
+                           abre la carga de una NC nueva con el ancla puesta
+     ===================================================================== */
+  function procesarEnlace() {
+    let q; try { q = new URLSearchParams(location.search); } catch (_) { return; }
+    const nc = q.get('nc'), ancla = q.get('ancla');
+    if (!nc && !ancla) return;
+    const t0 = Date.now();
+    const listo = () => typeof role !== 'undefined' && role && typeof DB !== 'undefined' && DB && DB.levantamientos && $('mainInner') && $('mainInner').children.length;
+    const tic = setInterval(() => {
+      if (Date.now() - t0 > 90000) { clearInterval(tic); return; }
+      if (!listo()) return;
+      clearInterval(tic);
+      try { history.replaceState(null, '', location.pathname); } catch (_) {}
+      if (nc && typeof openDetalle === 'function') {
+        if (typeof levPara === 'function' && !levPara(nc)) { aviso('info', 'No encontré ' + nc, 'Puede ser de otra planta o todavía no se sincronizó.'); return; }
+        openDetalle(nc); return;
+      }
+      if (!/^[A-Za-z0-9_\-:.]{6,200}$/.test(ancla)) { aviso('err', 'Ancla inválida', 'Volvé a marcar la NC desde la app.'); return; }
+      const num = k => { const v = parseFloat(q.get(k)); return Number.isFinite(v) ? v : null; };
+      const ra = { metodo: 'cloud', anclaId: ancla, d: new Date().toISOString(), by: (typeof ROLES !== 'undefined' && ROLES[role]) ? ROLES[role].name : '' };
+      const v = q.get('vence'); if (/^\d{4}-\d{2}-\d{2}$/.test(v || '')) ra.anclaVence = v;
+      if (num('lat') != null && num('lon') != null) { ra.lat = num('lat'); ra.lon = num('lon'); ra.insp = { lat: ra.lat, lon: ra.lon }; }
+      if (num('acc') != null) ra.acc = num('acc');
+      if (num('dist') != null) ra.dist = num('dist');
+      const rec = typeof recEnCurso === 'function' ? recEnCurso() : null;
+      if (!rec) aviso('info', 'No hay una ruta en curso', 'La NC se carga igual; para que quede en un recorrido, comenzá la ruta desde Inspección.');
+      if (typeof openCaptura === 'function') openCaptura({ rec: rec ? rec.id : null, ra });
+    }, 400);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', procesarEnlace); else procesarEnlace();
 
   window.vMapaNC = vMapa;
   window.SIMA_RA = Object.assign({
