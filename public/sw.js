@@ -8,7 +8,7 @@
    - Las llamadas de datos nunca se cachean (siempre red).
    - Al cerrar sesión, la app pide borrar las fotos guardadas (dispositivos
      compartidos: el siguiente usuario no las ve sin iniciar sesión). */
-const CACHE = 'sima-ra-app-v1';
+const CACHE = 'sima-ra-app-v2';
 const FOTOS = 'sima-ra-fotos';
 const TOPE_FOTOS = 400;
 const BASE = ['/', '/index.html', '/sima-sync.js', '/sima-ayuda.js', '/sima-bot.js', '/sima-mascota.js', '/sima-escenas.js', '/sima-modulos.js', '/sima-iot.js', '/sima-nfc.js', '/sima-ra.js', '/sima-equipos3d.js', '/vendor/three.module.min.js', '/vendor/RoomEnvironment.js', '/sima-reparar.js', '/sima-tour.js', '/sima-companero.js', '/sima-2026.css', '/manifest.webmanifest'];

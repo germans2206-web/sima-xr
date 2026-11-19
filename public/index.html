@@ -2114,7 +2114,7 @@ html[data-theme="light"] .note-amber{background:rgba(255,159,28,.15);border-colo
         <svg viewBox="0 0 24 24" fill="none" stroke="#14100A" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L3 7v10l9 5 9-5V7z"/><path d="M12 22V12M3 7l9 5 9-5"/></svg>
       </div>
       <div class="brand-txt">
-        <h1>SIMA <em style="font-style:normal;color:#FF3B30">RA</em></h1>
+        <h1 style="white-space:nowrap">SIMA <em style="font-style:normal;color:#FF3B30">RA</em></h1>
         <!-- «MINERVA FOODS» retirado por ahora (16-10-26); para volver: <span>Minerva foods</span> -->
       </div>
     </a>
@@ -2924,6 +2924,7 @@ function navFor(){
       {v:'inicio',i:'home',l:'Inicio'},
       {v:'analisis',i:'chart',l:'Dashboard'},
       {v:'inspeccion',i:'search',l:'Inspección'},
+      {v:'mapa',i:'pin',l:'Mapa NC'},
       {v:'mantenimiento',i:'wrench',l:'Mantenimiento',b:aProg},
       {v:'calendario',i:'calendar',l:'Calendario',b:tentVencidas().length+tentPorVencer().length},
       {v:'calidad',i:'shield',l:'Control de Calidad',b:aVerif}];
@@ -2931,12 +2932,13 @@ function navFor(){
     if(role==='inspeccion'&&esDueno())nav.push({v:'config',i:'cog',l:'Configuración'});
     return nav;
   }
-  if(role==='mantenimiento')return [{v:'inicio',i:'home',l:'Inicio'},{v:'mantenimiento',i:'wrench',l:'Mis trabajos',b:misTrab},{v:'analisis',i:'chart',l:'Dashboard'}];
+  if(role==='mantenimiento')return [{v:'inicio',i:'home',l:'Inicio'},{v:'mantenimiento',i:'wrench',l:'Mis trabajos',b:misTrab},{v:'mapa',i:'pin',l:'Mapa NC'},{v:'analisis',i:'chart',l:'Dashboard'}];
   // calidad: su control final + Análisis + Inspección en modo consulta
   // (la carga de hallazgos es sólo del Inspector, vía ruta de inspección).
   return [
     {v:'inicio',i:'home',l:'Inicio'},
     {v:'calidad',i:'shield',l:'Control final',b:cnt(aValidarCal)},
+    {v:'mapa',i:'pin',l:'Mapa NC'},
     {v:'analisis',i:'chart',l:'Dashboard'},
     {v:'inspeccion',i:'search',l:'Inspección'}];
 }
@@ -2956,10 +2958,10 @@ function renderRail(){
   ubicarSync();
 }
 /* Celular/tablet: las mismas secciones, abajo y a un toque del pulgar. */
-const TAB_CORTO={nfc:'Equipos',iot:'Monitoreo',modulos:'Módulos',inicio:'Inicio',analisis:'Dashboard',inspeccion:'Inspección',mantenimiento:'Mantenim.',calendario:'Calendario',calidad:'Calidad',config:'Ajustes'};
+const TAB_CORTO={mapa:'Mapa',nfc:'Equipos',iot:'Monitoreo',modulos:'Módulos',inicio:'Inicio',analisis:'Dashboard',inspeccion:'Inspección',mantenimiento:'Mantenim.',calendario:'Calendario',calidad:'Calidad',config:'Ajustes'};
 function renderTabbar(){
   const tb=document.getElementById('tabbar');if(!tb)return;
-  const nav=navFor();tb.classList.toggle('n6',nav.length>=6);
+  let nav=navFor();if(nav.length>6)nav=nav.filter(n=>!['config','calendario'].includes(n.v)||n.v===view).slice(0,6);tb.classList.toggle('n6',nav.length>=6);
   tb.innerHTML=nav.map(n=>{
     const lbl=n.l==='Mis trabajos'||n.l==='Control final'?n.l:(TAB_CORTO[n.v]||n.l);
     return `<button class="tb-item ${view===n.v?'active':''}" onclick="go('${n.v}')" ${view===n.v?'aria-current="page"':''} aria-label="${esc(n.l)}${n.b?`, ${n.b} pendientes`:''}">
@@ -3044,7 +3046,7 @@ function render(){
   ultimaPantalla=clave;scrollArriba=false;
   renderTop();renderRail();
   const views={inicio:vInicio,analisis:vAnalisis,inspeccion:vInspeccion,mantenimiento:vMantenimiento,calendario:vCalendario,calidad:vCalidad,config:vConfig,
-    nfc:window.vModNfc||(()=>''),iot:window.vModIot||(()=>'')};
+    nfc:window.vModNfc||(()=>''),iot:window.vModIot||(()=>''),mapa:window.vMapaNC||(()=>'')};
   const el=document.getElementById('mainInner');
   el.innerHTML=(esVista()?`<div class="vista-strip">${svg(I.eye)} <span><b>Usuario vista</b> · solo lectura: podés recorrer todas las pantallas y flujos, pero no se puede modificar nada.</span></div>`:'')+(views[view]||vInspeccion)();
   hacerAccesibles(el);
@@ -3052,6 +3054,7 @@ function render(){
   // se anima y la vista "rebota". Se fija al instante y se devuelve.
   if(m){m.style.scrollBehavior='auto';m.scrollTop=arriba?0:yPrev;m.style.scrollBehavior='';}
   if(view==='analisis')pintarRosaDisc();
+  if(window.SIMA_RA){if(view==='mapa')SIMA_RA.montarMapa();else SIMA_RA.salirMapa();}
 }
 
 /* ============================================================
@@ -5821,6 +5824,7 @@ function guardarLevantamiento(){
   });
   if(capCtx&&capCtx.rec)capUltimaUbic[capCtx.rec]={ak:area,sector,subsector};
   save();closeModal();render();
+  if(window.SIMA_RA)SIMA_RA.alGuardar(DB.levantamientos[0]);
   toast('ok','NC registrada',`${id} · ${CATEGORIAS[capData.cat].label} en ${subsector||sector}${raCap&&typeof raCap.lat==='number'?' · con ubicación ±'+Math.round(raCap.acc||0)+' m':''}.`);
 }
 

@@ -1,4 +1,25 @@
-# SIMA RA · Ruta de inspección con realidad aumentada (17-11-26)
+# SIMA RA · Ruta de inspección con realidad aumentada (17-11-26 · v2 19-11-26)
+
+## v2 (19-11-26): tarjetas fijas, mapa para todos y reincidencias
+- **Lenguaje visual:** señalética de seguridad (ISO 7010). Cada NC es una tarjeta colgante
+  de inspección: rojo *Pendiente* (detectado), amarillo *Programada* (programado, en
+  ejecución, a verificar), verde *Resuelta* (cerrado). Dice número, tipo, **días abierta**,
+  fecha programada o de cierre y, con franjas negras y amarillas, si **reincide** ahí.
+  Además del color cambia la forma (círculo, rombo, tilde).
+- **Buscar con la cámara:** en Android + Chrome las tarjetas son 3D y **quedan fijas en el
+  mundo** (GPS + brújula al empezar, después las sostiene el seguimiento de ARCore), con
+  poste y aro en el piso donde se levantó la falla. Si la brújula está corrida, ⟲ ⟳ las
+  gira de a 10°. En iPhone/PC: tarjetas sobre la cámara, suavizadas, más un radar de bolsillo.
+  Tocar una tarjeta abre su resumen y la ficha.
+- **Mapa NC** (menú, todos los roles): arrastrar, pellizcar o rueda; filtros Abiertas /
+  Pendientes / Programadas / Resueltas / Reincidencias / Todas; tu posición y hacia dónde
+  mirás; al tocar un punto, su tarjeta con «Ir hasta la NC», «Ver ficha» y Google Maps.
+- **SIMI y reincidencias:** mismo lugar = a menos de 6 m (con GPS) o mismo subsector, en
+  120 días. SIMI avisa en vivo al marcar (en la RA), en la carga, en la ficha, al guardar y
+  en el mapa («Un lugar se repite»).
+- **IA:** Groq (`GROQ_API_KEY`) como principal y Workers AI de respaldo.
+- **Skills de RA** guardadas en `.claude/skills/` (threejs-impl-xr, ar-vr-xr y three.js).
+
 
 Proyecto nuevo, separado de SIMA: otro repositorio, otro sitio de Cloudflare Pages
 (`sima-ra`), otra base D1 (`sima-ra-db`) y otro bucket R2 (`sima-ra-fotos`).

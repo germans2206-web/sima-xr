@@ -361,14 +361,15 @@ window.SIMA_AYUDA = [
     ir: { vista: 'inicio' }, rel: ['simi', 'estados']
   },
   {
-    id: 'ra', t: '¿Cómo marco una no conformidad con realidad aumentada (RA)?', quien: 'el Inspector', roles: ['inspeccion', 'vista'],
+    id: 'ra', t: '¿Cómo marco una no conformidad con realidad aumentada (RA)?', quien: 'el Inspector', roles: ['inspeccion', 'vista', 'mantenimiento', 'calidad'],
     claves: 'ra realidad aumentada marcar nc no conformidad pin ubicacion gps mapa radar camara webxr donde esta ir hasta',
     pasos: [
       'Dentro de una Ruta de inspección en curso, tocá «Marcar NC en RA».',
       'Android con Chrome: mové el celular despacio hacia la falla hasta que aparezca un aro sobre la superficie y tocá la pantalla: se clava el pin rojo «NC». SIMA calcula la distancia y el rumbo y guarda la ubicación de la falla.',
       'iPhone y otros equipos: tocá en la imagen el punto exacto de la falla y luego «Tomar foto y marcar». La foto queda con el pin dibujado como evidencia.',
       'Se abre la carga de siempre con la marca ya hecha: completá descripción, sector y tipo, y guardá. Aunque cargues sin RA, se guarda la ubicación GPS del momento.',
-      'Para volver a encontrarla: en la ficha tocá «Ir hasta la NC en RA» (la cámara te muestra hacia dónde girar y a cuántos metros está) o «Ver en el mapa».'
+      'Para encontrarla: en «Mapa NC» tocá el punto y «Ir hasta la NC», o «Buscar con la cámara»: cada NC aparece como una tarjeta fija en el lugar donde se levantó, con su estado (roja pendiente, amarilla programada, verde resuelta) y los días que lleva abierta.',
+      'Si en ese lugar ya hubo NC, SIMI te avisa: es una reincidencia y conviene ir a la causa.'
     ],
     nota: 'Adentro de las cámaras de frío el GPS puede no llegar o ser impreciso: la NC queda igual con su sector y subsector, y se indica la precisión (±m).',
     ir: { vista: 'inspeccion' }, rel: ['modulos']
